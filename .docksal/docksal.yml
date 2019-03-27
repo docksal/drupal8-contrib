@@ -1,0 +1,10 @@
+version: "2.1"
+
+services:
+  # Selenium2.
+  browser:
+    hostname: browser
+    image: selenium/standalone-chrome
+    dns:
+      - ${DOCKSAL_DNS1}
+      - ${DOCKSAL_DNS2}

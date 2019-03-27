@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Creates a phpunit.xml file and runs PHPUnit tests in Drupal 8
+##
+## Usage: fin phpunit <args>
+##
+## This first ensures that a `core/phpunit.xml` file exists, either by copying a
+## stub from `.docksal/drupal/core/phpunit.xml` if that exists, or copying and
+## renaming `core/phpunit.xml.dist`.
+##
+## If `core/phpunit.xml` exists, the phpunit command with then be run, appending
+## any optional arguments such as the directory path (run `fin phpunit -h`) to
+## see a full list of options.
+
+set -e
+
+DOCROOT_PATH="${PROJECT_ROOT}/${DOCROOT}"
+DRUPAL_CORE_PATH="${DOCROOT_PATH}/core"
+PHPUNIT_XML_PATH="${PROJECT_ROOT}/.docksal/settings/phpunit.xml"
+
+run_tests() {
+    cd $DOCROOT_PATH
+    ./vendor/bin/phpunit -c "${DRUPAL_CORE_PATH}" "$@"
+    cd -
+}
+
+if [ ! -e ${DRUPAL_CORE_PATH}/phpunit.xml ]; then
+    if [ -e "${PHPUNIT_XML_PATH}" ]; then
+        echo "Copying ${PHPUNIT_XML_PATH} to ${DRUPAL_CORE_PATH}/phpunit.xml"
+        cp "${PHPUNIT_XML_PATH}" ${DRUPAL_CORE_PATH}/phpunit.xml
+        run_tests "$@"
+    else
+        echo "Copying phpunit.xml.dist to phpunit.xml."
+        echo "Please edit it's values as needed and re-run 'fin phpunit'."
+        cp ${DRUPAL_CORE_PATH}/phpunit.xml.dist ${DRUPAL_CORE_PATH}/phpunit.xml
+        exit 1;
+    fi
+else
+    run_tests "$@"
+fi

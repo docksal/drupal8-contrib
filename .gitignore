@@ -1,0 +1,8 @@
+# Ignore binaries.
+/bin
+
+.idea/
+docker-compose.yml
+docroot
+docroot/sites/*/settings.local.php
+docroot/sites/*/files

@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Initialize/reinstall site
+##
+## Usage: fin init-site
+
+# Abort if anything fails
+set -e
+
+#-------------------------- Settings --------------------------------
+
+# PROJECT_ROOT and DOCROOT are set as env variables in cli
+SITE_DIRECTORY="default"
+SETTINGS_PATH="${PROJECT_ROOT}/.docksal/settings"
+DOCROOT_PATH="${PROJECT_ROOT}/${DOCROOT}"
+SITEDIR_PATH="${DOCROOT_PATH}/sites/${SITE_DIRECTORY}"
+DRUPAL_GIT_REPO="https://git.drupal.org/project/drupal.git"
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------- Helper functions --------------------------------
+
+# Copy a settings file.
+# Skips if the destination file already exists.
+# @param $1 source file
+# @param $2 destination file
+copy_settings_file()
+{
+	local source="$1"
+	local dest="$2"
+
+	if [[ ! -f $dest ]]; then
+		echo "Copying ${dest}..."
+		cp $source $dest
+	else
+		echo "${dest} already in place."
+	fi
+}
+
+# Clones Drupal 8 repository into docroot.
+clone_drupal_8()
+{
+    if [[ ! -d $DOCROOT_PATH ]]; then
+      echo "Cloning Drupal 8"
+      git clone $DRUPAL_GIT_REPO $DOCROOT_PATH
+    fi
+
+    cd $DOCROOT_PATH
+    composer install
+    composer run-script drupal-phpunit-upgrade
+    # Reset composer..lock to avoid accidental commit of the phpunit upgrade.
+    # @todo Fix this once core standardizes on requirements again.
+    git checkout composer.lock
+
+    cd -
+}
+
+# Copies `example.gitignore` into `.gitignore`
+copy_gitignore()
+{
+    copy_settings_file "${SETTINGS_PATH}/example.gitignore" "${DOCROOT_PATH}/.gitignore"
+}
+
+# Copies the phpunit template into place.
+copy_phpunit_xml()
+{
+    copy_settings_file "${SETTINGS_PATH}/phpunit.xml" "${DOCROOT_PATH}/core/phpunit.xml"
+}
+
+#-------------------------- END: Helper functions --------------------------------
+
+#-------------------------- Functions --------------------------------
+
+# Initialize local settings files
+init_settings ()
+{
+	# Copy from settings templates
+	copy_settings_file "${SETTINGS_PATH}/settings.php" "${SITEDIR_PATH}/settings.php"
+	copy_settings_file "${SETTINGS_PATH}/default.settings.local.php" "${SITEDIR_PATH}/settings.local.php"
+}
+
+# Fix file/folder permissions
+fix_permissions ()
+{
+	echo "Making site directory writable..."
+	chmod 755 "${SITEDIR_PATH}"
+}
+
+# Install site
+site_install ()
+{
+	cd $DOCROOT_PATH
+
+	# We disable email sending here so site-install does not return an error
+	# Credit: https://www.drupal.org/project/phpconfig/issues/1826652#comment-12071700
+	drush site-install standard -y \
+		install_configure_form.enable_update_status_module=NULL \
+		--site-name='My Drupal 8 Site'
+}
+
+#-------------------------- END: Functions --------------------------------
+
+#-------------------------- Execution --------------------------------
+
+# Project initialization steps
+clone_drupal_8
+copy_gitignore
+copy_phpunit_xml
+fix_permissions
+init_settings
+time site_install
+
+#-------------------------- END: Execution --------------------------------

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+## Test site installation
+##
+## Usage: fin test
+
+# Abort if anything fails
+set -e
+
+# Debug mode switch
+if [[ "${DEBUG}" != "" ]]; then
+    set -x
+fi
+
+# Test to use to verify phpunit is properly configured.
+PHPUNIT_FUNCTIONAL_TEST="core/modules/content_moderation/tests/src/Functional/ContentModerationWorkflowTypeTest.php"
+
+# JS test to verify selenium container is setup.
+PHPUNIT_FUNCTIONAL_JS_TEST="core/tests/Drupal/FunctionalJavascriptTests/JavascriptGetDrupalSettingsTest.php"
+
+# The .gitignore file exists.
+GITIGNORE_PATH="${PROJECT_ROOT}/${DOCROOT}/.gitignore"
+if [[ ! -f "${GITIGNORE_PATH}" ]]; then
+   echo "No .gitignore file was copied to ${GITIGNORE_PATH}."
+   exit 1
+fi
+
+# Verify phpunit is working.
+# @todo FunctionalJavascript tests.
+echo "Verifying PHPUnit is correctly installed..."
+fin phpunit "${PHPUNIT_FUNCTIONAL_TEST}"
+
+echo "Verifying Selenium container is installed..."
+fin phpunit "${PHPUNIT_FUNCTIONAL_JS_TEST}"
+
+echo "Testing home page..."
+curl -sL -I http://${VIRTUAL_HOST} | grep "HTTP/1.1 200 OK"
+curl -sL http://${VIRTUAL_HOST} | grep "My Drupal 8 Site"
+echo "Testing login page..."
+curl -sL -I http://${VIRTUAL_HOST}/user/login | grep "HTTP/1.1 200 OK"
