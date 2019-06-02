@@ -49,12 +49,6 @@ clone_drupal_8()
 
     cd $DOCROOT_PATH
     composer install
-    composer run-script drupal-phpunit-upgrade
-    # Reset composer..lock to avoid accidental commit of the phpunit upgrade.
-    # @todo Fix this once core standardizes on requirements again.
-    git checkout composer.lock
-
-    cd -
 }
 
 # Copies `example.gitignore` into `.gitignore`
