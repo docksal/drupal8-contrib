@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+## Toggles a given PHP extension (most commonly xdebug).
+##
+## Usage: fin php/ext xhprof on|off
+#: exec_target = cli
+
+usage() {
+  echo "Usage:"
+  echo "fin php-ext <extension name> on|off"
+}
+
+toggle_on() {
+  sudo su -c "sed -ri 's/^[#;]((zend_)?extension)/\1/' ${EXTENSION_PATH}"
+  echo "${EXTENSION} on"
+}
+
+toggle_off() {
+  sudo su -c "sed -ri 's/^((zend_)?extension)/#\1/' ${EXTENSION_PATH}"
+  echo "${EXTENSION} off"
+}
+
+restart_php_fpm() {
+  sudo su -c "pkill --signal USR1 --pidfile /var/run/php-fpm.pid;"
+}
+
+find_extension() {
+  EXTENSION_PATH=`php --ini | grep "${EXTENSION}" | tr -d ","`
+  if [[ -z ${EXTENSION_PATH} ]]; then
+    echo "Invalid extension: ${EXTENSION}"
+    exit 1
+  fi
+}
+
+if [[ -z ${2} ]]; then
+  usage
+  exit 1
+fi
+
+# main
+EXTENSION=${1}
+find_extension
+
+if [[ "${2}" == "on" ]]; then
+  toggle_on
+elif [[ "${2}" == "off" ]]; then
+  toggle_off
+else
+  echo "Unknown option: ${2}"
+  exit 1
+fi
+
+restart_php_fpm
