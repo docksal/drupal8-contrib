@@ -1,11 +1,6 @@
 version: "2.1"
 
 services:
-  # Xdebug setup for cli
-  cli:
-    environment:
-      - PHP_IDE_CONFIG=serverName=${VIRTUAL_HOST}
-
   # Selenium2.
   browser:
     hostname: browser
