@@ -20,7 +20,7 @@ toggle_off() {
 }
 
 restart_php_fpm() {
-  sudo su -c "pkill --signal USR1 --pidfile /var/run/php-fpm.pid;"
+  sudo supervisorctl restart php-fpm
 }
 
 find_extension() {
