@@ -11,7 +11,4 @@ before_script:
   - fin init
 
 script:
-  # Some debugging
-  - fin exec --in=browser chromedriver --version
-  - fin exec --in=browser java -jar /opt/selenium/selenium-server-standalone.jar --version
   - fin test
