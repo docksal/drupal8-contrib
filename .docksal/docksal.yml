@@ -4,7 +4,9 @@ services:
   # Selenium2.
   browser:
     hostname: browser
-    image: selenium/standalone-chrome
+    # Pin selenium (for chromedriver version 73) for now.
+    # @see https://github.com/docksal/drupal8-contrib/issues/4
+    image: selenium/standalone-chrome:3.141.59-mercury
     dns:
       - ${DOCKSAL_DNS1}
       - ${DOCKSAL_DNS2}
