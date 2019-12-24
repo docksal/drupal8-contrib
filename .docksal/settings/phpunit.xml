@@ -27,7 +27,7 @@
     <!-- Example SIMPLETEST_DB value: mysql://username:password@localhost/databasename#table_prefix -->
     <env name="SIMPLETEST_DB" value="mysql://user:user@db/default"/>
     <!-- Example BROWSERTEST_OUTPUT_DIRECTORY value: /path/to/webroot/sites/simpletest/browser_output -->
-    <env name="BROWSERTEST_OUTPUT_DIRECTORY" value=""/>
+    <env name="BROWSERTEST_OUTPUT_DIRECTORY" value="/tmp"/>
     <!-- Selenium configuration for JS tests. -->
     <env name="MINK_DRIVER_ARGS_WEBDRIVER" value='["chrome", {"browser": "chrome", "chrome": {"switches":["--disable-gpu", "--headless"]}}, "http://browser:4444/wd/hub"]'/>
     <!-- To disable deprecation testing completely uncomment the next line. -->
