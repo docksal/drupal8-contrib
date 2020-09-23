@@ -5,4 +5,4 @@
 #: exec_target = cli
 
 set -e
-./.docksal/commands/php/ext xdebug $1
+${PROJECT_ROOT}/.docksal/commands/php/ext xdebug $1
