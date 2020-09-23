@@ -10,3 +10,9 @@ services:
     dns:
       - ${DOCKSAL_DNS1}
       - ${DOCKSAL_DNS2}
+
+  cli:
+    environment:
+      # Allows browser output URLs generated during tests to be viewable in the
+      # local browser.
+      - BROWSERTEST_OUTPUT_BASE_URL=http://${VIRTUAL_HOST}
